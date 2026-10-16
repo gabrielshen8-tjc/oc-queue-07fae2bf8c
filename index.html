@@ -64,7 +64,7 @@ details p{max-width:68ch}
 }
 @media(prefers-reduced-motion:no-preference){#sheet .in{animation:in .22s cubic-bezier(.16,1,.3,1)}@keyframes in{from{opacity:.4;transform:translateY(6px)}}}
 </style></head><body>
-<header><h1>Call queue</h1><div class="stamp">Updated Oct 15, 2026 11:40 PM · <span id="count"></span></div>
+<header><h1>Call queue</h1><div class="stamp">Updated Oct 16, 2026 02:35 PM · <span id="count"></span></div>
 <div class="tools"><div class="seg" id="tiers" role="group" aria-label="Tier"></div>
 <input id="q" type="search" placeholder="Search name, city, owner…" aria-label="Search">
 <select id="niche" aria-label="Niche"><option value="">All niches</option></select>
@@ -95,18 +95,15 @@ function render(){tiers();const q=$('#q').value.toLowerCase(),n=$('#niche').valu
 function paint(){document.querySelectorAll('#list li[data-i]').forEach(li=>{const on=L[+li.dataset.i]===sel;li.setAttribute('aria-selected',on);if(on)li.scrollIntoView({block:'nearest'})});
  $('#sheet').innerHTML=sel?sheet(sel):'<div class="empty">Select a lead.</div>'}
 const A=(u,t,c)=>u?`<a ${c?`class="${c}" `:''}href="${esc(u)}" target="_blank" rel="noopener">${t}</a>`:'';
+const gaps=d=>[!d.website&&'No website',d.website&&d.audit!=null&&d.audit<55&&'Weak website ('+d.audit+'/100)',d.stale&&'Outdated website',!d.ig&&'No Instagram found',d.posts60!=null&&d.posts60<8&&'Posts rarely ('+d.posts60+' in 60 days)',!d.email&&'No email found',!d.owner&&'Owner unknown',!d.meta&&'No Meta pixel (no ads tracking)',!d.agency&&'No agency credit'].filter(Boolean).map(esc);
 function sheet(d){const b=d.brief,ps=d.psi;
  return `<div class="in"><button class="back" onclick="document.body.classList.remove('sheet-open')">← All leads</button>
  <div class="top"><span class="tier" data-t="${d.tier}" style="background:var(--t${d.tier||5})">${d.tier||'?'}</span><div><h2>${esc(d.name)}</h2>
  <div class="sub">${esc(d.niche)} · ${esc(d.address||d.city)}</div></div></div>
  <div class="acts">${d.phone?`<a class="pri" href="tel:${esc(d.phone)}">Call ${esc(d.phone)}</a>`:''}${d.email?`<a href="mailto:${esc(d.email)}">Email</a>`:''}${A(d.website,'Website')}${A(d.ig,'Instagram')}${A(d.maps,'Maps')}${A(d.linkedin,'Owner LinkedIn')}</div>
  ${d.flags.map(x=>`<span class="flag">${esc(x)}</span>`).join('')}
- <section><h3>Open with</h3><p class="open">${esc(b.opening)}</p></section>
- <section><h3>Talking points</h3><ol>${b.points.map(p=>`<li>${lnk(p)}</li>`).join('')}</ol></section>
- <section><h3>Questions to ask</h3><ul class="q">${b.questions.map(p=>`<li>${esc(p)}</li>`).join('')}</ul></section>
- <section><h3>First ask</h3><p class="ask">${esc(b.ask)}</p></section>
- <section><h3>Our proof</h3><p style="max-width:68ch;margin:0">${lnk(b.proof)}</p></section>
- <section><h3>What we know</h3><div class="facts">
+ <section><h3>What they're missing</h3><p style="max-width:68ch;margin:0">${gaps(d).join(' · ')||'No obvious gaps found.'}</p><p class="sub">${esc(d.tierWhy)}</p></section>
+ <section><h3>What we found</h3><div class="facts">
   <div><p><b>${esc(d.owner)||'Owner unknown'}</b>${d.ownerTitle?' · '+esc(d.ownerTitle):''}</p><p class="sub">${esc(d.email)||'No email found'}</p></div>
   <div><p><b>Website</b> ${d.audit==null?'<span class="sub">not graded</span>':`<span class="${cls(d.audit)}">${d.audit}/100</span>`}</p>
    ${ps?`<div class="bars">${[['performance','Speed'],['accessibility','Accessibility'],['best-practices','Best practices'],['seo','SEO']].map(([k,n])=>ps[k]==null?'':`<div class="bar"><span>${n}</span><i class="${cls(ps[k])}"><s style="width:${ps[k]}%"></s></i><span>${ps[k]}</span></div>`).join('')}</div>${d.psiUrl?`<p class="sub">${A(d.psiUrl,'Full Lighthouse report')}</p>`:''}`:''}
@@ -114,7 +111,12 @@ function sheet(d){const b=d.brief,ps=d.psi;
   <div><p><b>Instagram</b></p><p>${d.followers==null?(d.ig?'Not checked':'None found'):num(d.followers)+' followers · '+num(d.views)+' avg views · '+d.posts60+' posts / 60 days'}</p>
    <p class="sub">${d.meta?'Running Meta ads':'No Meta pixel'} · ${esc(d.agency)||'no agency credit'}</p></div>
   <div><p><b>Services to pitch</b></p><p>${d.pitch.map(esc).join(' · ')||'—'}</p></div></div></section>
- <details><summary>Why this tier and why Nexposure</summary><p><b>Tier:</b> ${esc(d.tierWhy)}</p><p>${esc(d.why)}</p><p class="sub">${esc(d.does)}</p></details></div>`}
+ <section><h3>Suggested talking points</h3><h3 style="margin-top:14px">Open with</h3><p class="open">${esc(b.opening)}</p></section>
+ <section><h3>Points to raise</h3><ol>${b.points.map(p=>`<li>${lnk(p)}</li>`).join('')}</ol></section>
+ <section><h3>Questions to ask</h3><ul class="q">${b.questions.map(p=>`<li>${esc(p)}</li>`).join('')}</ul></section>
+ <section><h3>First ask</h3><p class="ask">${esc(b.ask)}</p></section>
+ <section><h3>Our proof</h3><p style="max-width:68ch;margin:0">${lnk(b.proof)}</p></section>
+ <details><summary>Why Nexposure</summary><p>${esc(d.why)}</p><p class="sub">${esc(d.does)}</p></details></div>`}
 ['q','niche','flag','sort'].forEach(id=>$('#'+id).addEventListener('input',render));
 addEventListener('keydown',e=>{if(/INPUT|SELECT/.test(document.activeElement.tagName)||!L.length)return;const k={ArrowDown:1,j:1,ArrowUp:-1,k:-1}[e.key];
  if(k){e.preventDefault();sel=L[Math.max(0,Math.min(L.length-1,L.indexOf(sel)+k))];paint()}});
